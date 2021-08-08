@@ -1,0 +1,15 @@
+{
+    "printWidth": 100,
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "singleQuote": true,
+    "arrowParens":"always",
+    "semi":true,
+    "jsxBracketSameLine": false,
+    "overrides": [{
+      "files": ["*.yml", "*.yaml"],
+      "options": {
+        "tabWidth": 2
+      }
+    }]
+  }

@@ -1,0 +1,39 @@
+{
+  "name": "polyglot-api-metrics",
+  "scripts": {
+    "init": "cross-vars cp -r $NR_ENV_FOLDER/polyglot-api-metrics/. ./",
+    "lint": "tslint --project tsconfig.json",
+    "pretty": "prettier --write \"src/**/*.ts\"",
+    "build": "tsc",
+    "dev": "concurrently --kill-others \"tsc -w\" \"cross-env-file -p .env.json nodemon lib/.\"",
+    "start": "npm run build && cross-env-file -p .env.json node lib/.",
+    "docker:build": "docker build -t myprojects/polyglot-api-metrics .",
+    "docker:run": "docker run --env-file .env myprojects/polyglot-api-metrics",
+    "docker:start": "docker run -d --env-file .env myprojects/polyglot-api-metrics",
+    "docker:push": "docker tag myprojects/polyglot-api-metrics:latest nfrribeiro/polyglot-api-metrics:latest && docker push nfrribeiro/polyglot-api-metrics:latest"
+  },
+  "devDependencies": {
+    "@types/flat": "^5.0.2",
+    "@types/pg": "^7.14.11",
+    "concurrently": "^5.2.0",
+    "cross-env-file": "^1.0.0",
+    "cross-vars": "^1.2.0",
+    "nodemon": "^2.0.3",
+    "prettier": "2.0.4",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^5.12.0",
+    "typescript": "^3.2.2"
+  },
+  "private": true,
+  "bin": {
+    "myapp": "lib/index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-translate": "^3.25.0",
+    "@types/node": "^14.14.41",
+    "axios": "^0.21.1",
+    "flat": "^5.0.2",
+    "pg": "^8.6.0",
+    "winston": "^3.3.3"
+  }
+}
