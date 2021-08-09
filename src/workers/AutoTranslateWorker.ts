@@ -19,7 +19,7 @@ export default class AutoTranslateWorker extends DbWorker {
                 Logger.log('debug', key.language.language.substring(0, 2));
                 Logger.log('debug', key.referenceValue);
                 const translated = await AwsTranslate.translateValue(
-                    'auto',
+                    'en',
                     key.language.language.substring(0, 2),
                     key.referenceValue
                 );
