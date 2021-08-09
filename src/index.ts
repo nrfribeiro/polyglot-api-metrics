@@ -9,7 +9,7 @@ const run = async () => {
     const t1 = new Date();
     if (EnvVarsUtilities.getEnvVar('AUTO_TRANSLATE') === 'true')
         await new AutoTranslateWorker().start();
-    await new I18nWorker().start();
+    //await new I18nWorker().start();
     const t2 = new Date();
     const seconds = (t2.getTime() - t1.getTime()) / 1000;
     console.log('Time ' + seconds);

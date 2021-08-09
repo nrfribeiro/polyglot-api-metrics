@@ -55,13 +55,18 @@ export default class Database {
         Logger.log('silly', ' saveAutoTranslateKey');
 
         try {
+
+           
             await this.client.executeDML(
                 'INSERT INTO translation_values_auto_translate(' +
                     'translation_key_id, language_id, value, reference_value)' +
                     ' VALUES (' +
                     this.client.genBindVariables(4) +
-                    ')',
-                [key.id, key.language.id, translated, key.referenceValue]
+                    ') '+
+                    'ON CONFLICT ON CONSTRAINT un_translation_values_auto_trans '+
+                    'DO update set value=$5,reference_value=$6'//where translation_key_id=$7 and language_id=$8'
+                    ,
+                [key.id, key.language.id, translated, key.referenceValue, translated, key.referenceValue/*,key.id, key.language.id*/]
             );
             return new Result(true);
         } catch (error) {

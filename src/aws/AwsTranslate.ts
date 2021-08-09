@@ -13,15 +13,15 @@ export default class AwsTranslate {
             TargetLanguageCode: destination,
             Text: value,
         };
-        commandInput.Text = commandInput.Text.replace('{{', '<p translate=no>{{').replace(
+        commandInput.Text = commandInput.Text.replace('{{', '<span translate=no>{{').replace(
             '}}',
-            '}}</p>'
+            '}}</span>'
         );
         const command = new TranslateTextCommand(commandInput);
         try {
             const response = await AwsTranslate.client.send(command);
-            return response.TranslatedText.replace('<p translate=no>{{', '{{').replace(
-                '}}</p>',
+            return response.TranslatedText.replace('<span translate=no>{{', '{{').replace(
+                '}}</span>',
                 '}}'
             );
         } catch (error) {
