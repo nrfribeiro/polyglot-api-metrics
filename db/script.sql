@@ -48,3 +48,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.translation_values_auto_translate
     OWNER to postgres;
+
+ALTER TABLE public.translation_values_auto_translate
+    ADD CONSTRAINT un_translation_values_auto_trans UNIQUE (translation_key_id, language_id);
+   
