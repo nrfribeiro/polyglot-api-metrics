@@ -7,7 +7,7 @@
     "semi":true,
     "jsxBracketSameLine": false,
     "overrides": [{
-      "files": ["*.yml", "*.yaml"],
+      "files": ["*.yml", "*.yaml","./migrations"],
       "options": {
         "tabWidth": 2
       }
