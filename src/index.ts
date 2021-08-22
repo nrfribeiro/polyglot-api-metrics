@@ -28,7 +28,7 @@ Logger.log('info', 'Starting server');
 const run = async () => {
     await migrations();
     Logger.log('info', 'Migrations  runned');
- 
+
     const t1 = new Date();
     if (EnvVarsUtilities.getEnvVar('AUTO_TRANSLATE') === 'true')
         await new AutoTranslateWorker().start();

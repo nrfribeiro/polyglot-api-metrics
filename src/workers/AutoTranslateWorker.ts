@@ -9,7 +9,7 @@ export default class AutoTranslateWorker extends DbWorker {
     }
     private async translatePendingKeys() {
         const itensToFetch = 1000;
-        let page = 1;
+        const page = 1;
         let keys: Key[];
         await this.databaseProxy.startAutoTranslateKeys();
 

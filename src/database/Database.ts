@@ -30,7 +30,6 @@ export default class Database {
             Logger.log('debug', 'Transaction Started');
             await this.client.executeDML('SET search_path TO polyglot_extension,public');
             await this.client.executeDML('delete from translation_values_environments');
-           
         } catch (error) {
             Logger.log('error', 'Error Loading ' + error);
             throw error;
