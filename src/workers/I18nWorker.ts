@@ -7,9 +7,39 @@ import { flatten } from 'flat';
 import Namespace from '../models/Namespace';
 import EnvKeyValue from '../models/EnvKeyValue';
 import DbWorker from './DbWorker';
+import EnvVarsUtilities from '../utilities/EnvVarsUtilities';
 export default class I18NWorker extends DbWorker {
     public async run(): Promise<void> {
+        await this.cloneDatabase();
         await this.dumpI18NFiles();
+    }
+
+    private async cloneDatabase() {
+        await this.databaseProxy.startClone();
+
+        await this.databaseProxy.cleanTable('translation_values_environments');
+        await this.databaseProxy.cleanTable('translation_values');
+        await this.databaseProxy.cleanTable('translation_keys');
+        await this.databaseProxy.cleanTable('namespaces');
+        await this.databaseProxy.cleanTable('projects');
+        await this.databaseProxy.cleanTable('languages');
+
+        const source = this.databaseProxy.buildDbLink(
+            EnvVarsUtilities.getEnvVar('POLYGLOT_DB_HOST'),
+            parseInt(EnvVarsUtilities.getEnvVar('POLYGLOT_DB_PORT')),
+            EnvVarsUtilities.getEnvVar('POLYGLOT_DB_DATABASE'),
+            EnvVarsUtilities.getEnvVar('POLYGLOT_DB_USER'),
+            EnvVarsUtilities.getSecureEnvVar('POLYGLOT_DB_PASSWORD')
+        );
+        console.log('Source ' + source);
+
+        await this.databaseProxy.cloneLanguages(source);
+        await this.databaseProxy.cloneProjects(source);
+        await this.databaseProxy.cloneNamespaces(source);
+        await this.databaseProxy.cloneTranslationKeys(source);
+        await this.databaseProxy.cloneTranslationValues(source);
+        await this.databaseProxy.deleteDeprecatedAutoTranslate();
+        await this.databaseProxy.finish();
     }
 
     private index = 0;

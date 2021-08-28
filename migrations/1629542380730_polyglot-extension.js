@@ -1,10 +1,11 @@
 /* eslint-disable camelcase */
 
 exports.shorthands = {};
-const extensionSchema = 'polyglot_extension';
+const extensionSchema = 'polyglot_metrics';
 
 exports.up = (pgm) => {
-    pgm.createSchema(extensionSchema);
+    pgm.createSchema(extensionSchema, { ifNotExists: true });
+    pgm.sql('SET search_path TO ' + extensionSchema);
 
     pgm.createTable(
         { schema: extensionSchema, name: 'translation_values_auto_translate' },
@@ -22,13 +23,17 @@ exports.up = (pgm) => {
                 notNull: true,
                 references: 'translation_keys',
                 referencesConstraintName: 'FK_translation_auto_t_value',
-                onDelete: 'cascade',
+                //onDelete: 'cascade',
+                deferrable: true,
+                deferred: true,
             },
             language_id: {
                 type: 'integer',
                 notNull: true,
                 references: 'languages',
                 referencesConstraintName: 'FK_translation_language',
+                deferrable: true,
+                deferred: true,
             },
             value: {
                 type: 'character varying(2000)',
@@ -62,13 +67,17 @@ exports.up = (pgm) => {
                 notNull: true,
                 references: 'translation_keys',
                 referencesConstraintName: 'FK_translation_key_env_value',
-                onDelete: 'cascade',
+                //onDelete: 'cascade',
+                //deferrable: true,
+                //deferred: true
             },
             language_id: {
                 type: 'integer',
                 notNull: true,
                 references: 'languages',
                 referencesConstraintName: 'FK_translation_language',
+                //deferrable: true,
+                //deferred: true
             },
             value: {
                 type: 'character varying(2000)',

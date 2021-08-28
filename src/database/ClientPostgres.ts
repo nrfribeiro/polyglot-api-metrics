@@ -32,4 +32,24 @@ export default class ClientPostgres implements IClientDB {
     public escape(val: any): any {
         return val;
     }
+    public buildDbLink(
+        server: string,
+        port: number,
+        database: string,
+        user: string,
+        password: string
+    ): string {
+        return (
+            'dbname=' +
+            database +
+            ' port=' +
+            port +
+            ' host=' +
+            server +
+            ' user=' +
+            user +
+            ' password=' +
+            password
+        );
+    }
 }

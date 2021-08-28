@@ -19,6 +19,7 @@ export default class Database {
             Logger.log('debug', 'Connecting');
             await this.client.connect();
             Logger.log('debug', 'Connected');
+            await this.client.executeDML('SET search_path TO polyglot_metrics');
         } catch (error) {
             Logger.log('error', 'Error connect ' + error);
             throw error;
@@ -28,7 +29,6 @@ export default class Database {
         try {
             await this.client.beginTrans();
             Logger.log('debug', 'Transaction Started');
-            await this.client.executeDML('SET search_path TO polyglot_extension,public');
             await this.client.executeDML('delete from translation_values_environments');
         } catch (error) {
             Logger.log('error', 'Error Loading ' + error);
@@ -182,6 +182,148 @@ export default class Database {
             throw error;
         }
     };
+
+    public async startClone() {
+        try {
+            await this.client.beginTrans();
+            Logger.log('debug', 'Transaction Started');
+            await this.client.executeDML('delete from translation_values_environments');
+        } catch (error) {
+            Logger.log('error', 'Error Loading ' + error);
+            throw error;
+        }
+    }
+
+    public cleanTable = async (tableName: string): Promise<Result> => {
+        Logger.log('silly', 'cleanTable');
+
+        try {
+            const result = await this.client.executeDML(`delete from ` + tableName);
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cleanTable ' + error);
+            throw error;
+        }
+    };
+
+    public cloneLanguages = async (source: string): Promise<Result> => {
+        Logger.log('silly', 'cloneLanguages');
+
+        try {
+            const result = await this.client.executeDML(
+                `insert into languages
+                SELECT tab.*
+                FROM   dblink( '` +
+                    source +
+                    `'
+                             ,'SELECT * FROM languages')
+                AS     tab(id integer, language_tag text)`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cloneLanguages ' + error);
+            throw error;
+        }
+    };
+    public cloneProjects = async (source: string): Promise<Result> => {
+        Logger.log('silly', 'cloneProjects');
+
+        try {
+            const result = await this.client.executeDML(
+                `insert into projects
+                SELECT tab.*
+                FROM   dblink( '` +
+                    source +
+                    `'
+                             ,'SELECT * FROM projects')
+                AS     tab(id integer, slug text,deleted boolean)`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cloneProjects ' + error);
+            throw error;
+        }
+    };
+    public cloneNamespaces = async (source: string): Promise<Result> => {
+        Logger.log('silly', 'cloneNamespaces');
+
+        try {
+            const result = await this.client.executeDML(
+                `insert into namespaces
+                SELECT tab.*
+                FROM   dblink( '` +
+                    source +
+                    `'
+                             ,'SELECT * FROM namespaces')
+                AS     tab(id integer, project_id integer, name text,reference_url text)`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cloneNamespaces ' + error);
+            throw error;
+        }
+    };
+    public cloneTranslationKeys = async (source: string): Promise<Result> => {
+        Logger.log('silly', 'cloneTranslationKeys');
+
+        try {
+            const result = await this.client.executeDML(
+                `insert into translation_keys
+                SELECT tab.*
+                FROM   dblink( '` +
+                    source +
+                    `'
+                             ,'SELECT * FROM translation_keys')
+                AS     tab(id integer, namespace_id integer, key text,reference_value text)`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cloneTranslationKeys ' + error);
+            throw error;
+        }
+    };
+    public cloneTranslationValues = async (source: string): Promise<Result> => {
+        Logger.log('silly', 'cloneTranslationValues');
+
+        try {
+            const result = await this.client.executeDML(
+                `insert into translation_values
+                SELECT tab.*
+                FROM   dblink( '` +
+                    source +
+                    `'
+                             ,'SELECT * FROM translation_values')
+                AS     tab(id integer, translation_key_id integer, language_id integer,value text)`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'cloneTranslationValues ' + error);
+            throw error;
+        }
+    };
+    public deleteDeprecatedAutoTranslate = async (): Promise<Result> => {
+        Logger.log('silly', 'deleteDeprecatedAutoTranslate');
+
+        try {
+            const result = await this.client.executeDML(
+                `delete from translation_values_auto_translate
+                where (language_id not in (select id from languages) or
+                    translation_key_id not in (select id from translation_keys))`
+            );
+
+            return new Result(true);
+        } catch (error) {
+            Logger.log('error', 'deleteDeprecatedAutoTranslate ' + error);
+            throw error;
+        }
+    };
+
     public async finish() {
         try {
             Logger.log('debug', 'Finish Start');
@@ -210,5 +352,14 @@ export default class Database {
             Logger.log('error', 'rollback ' + error);
             throw error;
         }
+    }
+    public buildDbLink(
+        server: string,
+        port: number,
+        database: string,
+        user: string,
+        password: string
+    ): string {
+        return this.client.buildDbLink(server, port, database, user, password);
     }
 }

@@ -17,7 +17,7 @@ const migrations = async () =>
             port: parseInt(EnvVarsUtilities.getEnvVar('DB_PORT')),
         },
         migrationsTable: 'pg_migrations',
-        migrationsSchema: 'polyglot_migrations',
+        migrationsSchema: 'polyglot_metrics',
         createMigrationsSchema: true,
         dir: './migrations',
         direction: 'up',

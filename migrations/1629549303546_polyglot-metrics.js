@@ -4,7 +4,8 @@ exports.shorthands = {};
 const extensionSchema = 'polyglot_metrics';
 
 exports.up = (pgm) => {
-    pgm.createSchema(extensionSchema);
+    pgm.createSchema(extensionSchema, { ifNotExists: true });
+    pgm.sql('SET search_path TO ' + extensionSchema);
 
     pgm.createView(
         { schema: extensionSchema, name: 'project_pending_envs' },
@@ -27,7 +28,7 @@ exports.up = (pgm) => {
                 btrim(f.value::text) AS btrim,
                 f.language_id,
                 f.environment
-               FROM polyglot_extension.translation_values_environments f)) AND e.language_id = b.id AND a.deleted <> true
+               FROM translation_values_environments f)) AND e.language_id = b.id AND a.deleted <> true
       GROUP BY a.id, b.id, envs.env`
     );
 
@@ -91,7 +92,7 @@ exports.up = (pgm) => {
                                btrim(d_1.value::text) AS btrim,
                                d_1.language_id,
                                d_1.environment
-                              FROM polyglot_extension.translation_values_environments d_1))
+                              FROM translation_values_environments d_1))
                      GROUP BY a_1.project_id, c_1.language_id, envs.*, envs.env
                    ), project_summary_base AS (
                     SELECT a.id,
@@ -291,9 +292,9 @@ exports.up = (pgm) => {
                      JOIN namespaces b ON a.id = b.project_id
                      JOIN translation_keys c ON b.id = c.namespace_id
                      JOIN translation_values d ON c.id = d.translation_key_id
-                     LEFT JOIN polyglot_extension.translation_values_environments e ON d.translation_key_id = e.translation_key_id AND d.language_id = e.language_id AND e.environment::text = 'preview'::text
-                     LEFT JOIN polyglot_extension.translation_values_environments f ON d.translation_key_id = f.translation_key_id AND d.language_id = f.language_id AND f.environment::text = 'live'::text
-                     LEFT JOIN polyglot_extension.translation_values_auto_translate g ON d.translation_key_id = g.translation_key_id AND d.language_id = g.language_id
+                     LEFT JOIN translation_values_environments e ON d.translation_key_id = e.translation_key_id AND d.language_id = e.language_id AND e.environment::text = 'preview'::text
+                     LEFT JOIN translation_values_environments f ON d.translation_key_id = f.translation_key_id AND d.language_id = f.language_id AND f.environment::text = 'live'::text
+                     LEFT JOIN translation_values_auto_translate g ON d.translation_key_id = g.translation_key_id AND d.language_id = g.language_id
                      JOIN languages h ON d.language_id = h.id`
     );
 };
